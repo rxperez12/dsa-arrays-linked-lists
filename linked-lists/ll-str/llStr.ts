@@ -1,7 +1,6 @@
 /** IndexError: raised when index not found. */
 
-class IndexError extends Error {
-}
+class IndexError extends Error {}
 
 /**
  * NodeStr: node for a singly-linked list of string.
@@ -40,11 +39,33 @@ class LLStr {
   /** push(val): add new value to end of list. */
 
   push(val: string): void {
+    const node = new NodeStr(val);
+
+    if (this.head === null) this.head = node;
+
+    if (this.tail !== null) this.tail.next = node;
+
+    this.tail = node;
+    this.length++;
   }
 
   /** unshift(val): add new value to start of list. */
 
   unshift(val: string): void {
+    const node = new NodeStr(val);
+
+    // if head is null, add new node as head, set tail to node
+    if (this.head === null) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      // if head is not null, save current head
+      //change head to new node, set new node next to previous head
+      node.next = this.head;
+      this.head = node;
+    }
+
+    this.length++;
   }
 
   /** pop(): return & remove last item.
@@ -53,7 +74,20 @@ class LLStr {
    **/
 
   pop(): string {
-    return "x";
+    if (this.tail === null) throw new IndexError();
+
+    let current = this.head as NodeStr;
+    let removedItem = this.tail;
+
+    while (current.next !== null) {
+      if (current.next.next === null) {
+        current.next = null;
+        this.tail = current
+        break;
+      }
+    }
+    this.length--;
+    return removedItem.val;
   }
 
   /** shift(): return & remove first item.
@@ -79,16 +113,14 @@ class LLStr {
    * Throws IndexError if not found.
    **/
 
-  setAt(idx: number, val: string): void {
-  }
+  setAt(idx: number, val: string): void {}
 
   /** insertAt(idx, val): add node w/val before idx.
    *
    * Throws IndexError if not found.
    **/
 
-  insertAt(idx: number, val: string): void {
-  }
+  insertAt(idx: number, val: string): void {}
 
   /** removeAt(idx): return & remove item at idx,
    *
@@ -114,9 +146,4 @@ class LLStr {
   }
 }
 
-
-export {
-  IndexError,
-  LLStr,
-  NodeStr,
-};
+export { IndexError, LLStr, NodeStr };
