@@ -73,15 +73,16 @@ class LLStr {
    * Throws IndexError on empty list.
    **/
 
-  pop(): string {
-    if (this.tail === null) throw new IndexError();
+  pop(): string { //use removeat to refactor this code TODO:
+    if (this.tail === null || this.head === null) throw new IndexError();
 
-    let current = this.head as NodeStr;
+    let current = this.head;
     let removedItem = this.tail;
     let lastValue = null;
     // if current is current.next is equal to none, it's the last value of list
     // if current is equal to null, want to take last value to
 
+    //TODO: this works but logic is not clear, hard to follow
     while (true) {
       if (current.next === null) {
         if (lastValue === null) {
@@ -124,17 +125,7 @@ class LLStr {
    **/
 
   getAt(idx: number): string {
-    if (idx < 0 || this.head === null) throw new IndexError();
-
-    let numOfNodes = idx + 1;
-    let node = this.head;
-
-    for (let i = 1; i < numOfNodes; i++) {
-      if (node.next === null) {
-        throw new IndexError();
-      }
-      node = node.next
-    }
+    const node = this.getNodeAtIdx(idx);
 
     return node!.val;
   }
@@ -144,14 +135,56 @@ class LLStr {
    * Throws IndexError if not found.
    **/
 
-  setAt(idx: number, val: string): void {}
+  setAt(idx: number, val: string): void {
+    const node = this.getNodeAtIdx(idx);
+    node.val = val;
+  }
 
   /** insertAt(idx, val): add node w/val before idx.
    *
    * Throws IndexError if not found.
    **/
 
-  insertAt(idx: number, val: string): void {}
+  insertAt(idx: number, val: string): void {
+    if (idx < 0) throw new IndexError();
+
+    const newNode = new NodeStr(val);
+
+    // if LL is empty
+    if(this.head === null){
+      if(idx !== 0) throw new IndexError();
+      this.head = newNode
+      this.tail = newNode
+      this.length++
+      return
+    }
+
+    // if inserting at head
+    if (idx === 0) {
+      const previousHead = this.head;
+      this.head = newNode;
+      newNode.next = previousHead;
+      this.length++;
+      return;
+    }
+
+    // All other cases
+    let insertLocation = idx;
+    let node = this.head
+
+    for (let i = 1; i < insertLocation; i++) {
+      if (node.next === null) {
+        throw new IndexError();
+      }
+      node = node.next;
+    }
+
+    const previousNodeNext = node.next;
+    node.next = newNode;
+    newNode.next = previousNodeNext;
+    if (idx === this.length) this.tail = newNode;
+    this.length++;
+  }
 
   /** removeAt(idx): return & remove item at idx,
    *
@@ -159,7 +192,44 @@ class LLStr {
    **/
 
   removeAt(idx: number): string {
-    return "x";
+    if (idx < 0 || this.head === null) throw new IndexError();
+
+    let removedNode = null;
+
+    //if array has 1 value
+    if(this.length === 1){
+      if(idx !== 0) throw new IndexError();
+      removedNode = this.head
+      this.head = null
+      this.tail = null
+      this.length--;
+      return removedNode.val
+    }
+
+    // if removing at head
+    if (idx === 0) {
+      removedNode = this.head;
+      this.head = removedNode.next
+      this.length--;
+      return removedNode.val
+    }
+
+    // All other cases
+    let removeLocation = idx;
+    let nodeBeforeIdx = this.head
+
+    for (let i = 1; i < removeLocation; i++) {
+      if (nodeBeforeIdx.next === null) {
+        throw new IndexError();
+      }
+      nodeBeforeIdx = nodeBeforeIdx.next;
+    }
+
+    removedNode = nodeBeforeIdx.next as NodeStr
+    nodeBeforeIdx.next = removedNode.next;
+    if (idx === this.length - 1) this.tail = nodeBeforeIdx.next;
+    this.length--;
+    return removedNode!.val;
   }
 
   /** toArray (useful for tests!) */
@@ -174,6 +244,22 @@ class LLStr {
     }
 
     return out;
+  }
+
+  getNodeAtIdx(idx: number): NodeStr {
+    if (idx < 0 || this.head === null) throw new IndexError();
+
+    if(idx === 0) return this.head
+    let numOfNodes = idx + 1;
+    let node = this.head;
+
+    for (let i = 1; i < numOfNodes; i++) {
+      if (node.next === null) {
+        throw new IndexError();
+      }
+      node = node.next;
+    }
+    return node;
   }
 }
 
