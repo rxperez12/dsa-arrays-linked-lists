@@ -78,14 +78,25 @@ class LLStr {
 
     let current = this.head as NodeStr;
     let removedItem = this.tail;
+    let lastValue = null;
+    // if current is current.next is equal to none, it's the last value of list
+    // if current is equal to null, want to take last value to
 
-    while (current.next !== null) {
-      if (current.next.next === null) {
-        current.next = null;
-        this.tail = current
+    while (true) {
+      if (current.next === null) {
+        if (lastValue === null) {
+          this.head = null;
+          this.tail = null;
+        } else {
+          lastValue.next = null;
+          this.tail = lastValue;
+        }
         break;
       }
+      lastValue = current;
+      current = current.next;
     }
+
     this.length--;
     return removedItem.val;
   }
@@ -96,7 +107,15 @@ class LLStr {
    **/
 
   shift(): string {
-    return "x";
+    if (this.head === null) throw new IndexError();
+
+    const removedItem = this.head;
+
+    this.head = removedItem.next;
+    if (this.head === null) this.tail = null;
+
+    this.length--;
+    return removedItem.val;
   }
 
   /** getAt(idx): get val at idx.
@@ -105,7 +124,19 @@ class LLStr {
    **/
 
   getAt(idx: number): string {
-    return "x";
+    if (idx < 0 || this.head === null) throw new IndexError();
+
+    let numOfNodes = idx + 1;
+    let node = this.head;
+
+    for (let i = 1; i < numOfNodes; i++) {
+      if (node.next === null) {
+        throw new IndexError();
+      }
+      node = node.next
+    }
+
+    return node!.val;
   }
 
   /** setAt(idx, val): set val at idx to val.
